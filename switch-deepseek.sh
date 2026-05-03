@@ -215,13 +215,9 @@ cmd_switch() {
     local auth_token
     auth_token=$(get_auth_token)
 
-    # Backup
-    if [ -f "$BACKUP_FILE" ]; then
-        warn "备份文件已存在，跳过备份: $BACKUP_FILE"
-    else
-        cp "$SETTINGS_FILE" "$BACKUP_FILE" || die "备份创建失败: $BACKUP_FILE"
-        echo "已创建备份: $BACKUP_FILE"
-    fi
+    # Always backup current state before switching, so restore goes back to exact pre-switch state
+    cp "$SETTINGS_FILE" "$BACKUP_FILE" || die "备份创建失败: $BACKUP_FILE"
+    echo "已备份当前配置: $BACKUP_FILE"
 
     # Generate new config via jq patch
     local tmp

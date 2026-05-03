@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek 配置切换工具</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .container {
+    max-width: 640px;
+    width: 100%;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    color: #f0f0f0;
+    letter-spacing: 0.5px;
+  }
+
+  /* Card */
+  .card {
+    background: #1a1a2e;
+    border: 1px solid #2a2a40;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Status Badge */
+  .status-area { text-align: center; }
+  .status-label { font-size: 13px; color: #888; margin-bottom: 8px; }
+  .badge {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-deepseek { background: #00d4aa22; color: #00d4aa; border: 1px solid #00d4aa44; }
+  .badge-claude   { background: #4a9eff22; color: #4a9eff; border: 1px solid #4a9eff44; }
+  .badge-unknown  { background: #88888822; color: #888;    border: 1px solid #88888844; }
+
+  /* Config Table */
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 15px; font-weight: 600; color: #ccc; }
+  .btn-refresh {
+    background: none;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .btn-refresh:hover { border-color: #00d4aa; color: #00d4aa; }
+
+  table { width: 100%; border-collapse: collapse; }
+  table td {
+    padding: 7px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #222238;
+  }
+  table tr:last-child td { border-bottom: none; }
+  table td:first-child {
+    color: #888;
+    width: 45%;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+  }
+  table td:last-child {
+    color: #e0e0e0;
+    word-break: break-all;
+  }
+  .tag-set   { color: #00d4aa; }
+  .tag-unset { color: #666; }
+
+  /* Buttons */
+  .btn-area {
+    display: flex;
+    gap: 12px;
+  }
+  .btn-action {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .btn-action:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-switch {
+    background: #00d4aa;
+    color: #0f0f1a;
+  }
+  .btn-switch:hover:not(:disabled) { background: #00eabb; }
+  .btn-restore {
+    background: #2a2a40;
+    color: #e0e0e0;
+    border: 1px solid #3a3a55;
+  }
+  .btn-restore:hover:not(:disabled) { border-color: #ff6b6b; color: #ff6b6b; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Log */
+  .log-area {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #12121f;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .log-entry {
+    padding: 4px 0;
+    line-height: 1.5;
+    border-bottom: 1px solid #1a1a2e;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-time { color: #555; }
+  .log-ok   { color: #00d4aa; }
+  .log-warn { color: #f0c040; }
+  .log-err  { color: #ff6b6b; }
+  .log-info { color: #888; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #444;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>DeepSeek 配置切换工具</h1>
+
+  <!-- Status Badge -->
+  <div class="card status-area">
+    <div class="status-label">当前状态</div>
+    <div id="badge" class="badge badge-unknown">加载中...</div>
+  </div>
+
+  <!-- Config Details -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">配置详情</span>
+      <button class="btn-refresh" onclick="fetchStatus()">刷新</button>
+    </div>
+    <table id="config-table">
+      <tr><td colspan="2" style="text-align:center;color:#666">加载中...</td></tr>
+    </table>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="card btn-area">
+    <button id="btn-switch" class="btn-action btn-switch" onclick="doSwitch()">
+      切换到 DeepSeek
+    </button>
+    <button id="btn-restore" class="btn-action btn-restore" onclick="doRestore()">
+      恢复原始配置
+    </button>
+  </div>
+
+  <!-- Operation Log -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">操作日志</span>
+      <button class="btn-refresh" onclick="clearLog()">清空</button>
+    </div>
+    <div id="log-area" class="log-area">
+      <div class="log-entry log-info">等待操作...</div>
+    </div>
+  </div>
+
+  <div class="footer">localhost:8080</div>
+</div>
+
+<script>
+const badgeEl   = document.getElementById('badge');
+const tableEl   = document.getElementById('config-table');
+const btnSwitch = document.getElementById('btn-switch');
+const btnRestore = document.getElementById('btn-restore');
+const logArea   = document.getElementById('log-area');
+
+let refreshing = false;
+
+function now() {
+  const d = new Date();
+  return [d.getHours(), d.getMinutes(), d.getSeconds()]
+    .map(n => String(n).padStart(2, '0')).join(':');
+}
+
+function addLog(text, cls) {
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + (cls || 'log-info');
+  entry.innerHTML = '<span class="log-time">' + now() + '</span>  ' + text;
+  logArea.prepend(entry);
+  if (logArea.children.length > 50) logArea.lastChild.remove();
+}
+
+function clearLog() {
+  logArea.innerHTML = '';
+}
+
+function setBadge(state) {
+  badgeEl.className = 'badge';
+  if (state === 'deepseek-like') {
+    badgeEl.classList.add('badge-deepseek');
+    badgeEl.textContent = 'DeepSeek 模式';
+  } else if (state === 'claude-like') {
+    badgeEl.classList.add('badge-claude');
+    badgeEl.textContent = 'Claude 模式';
+  } else {
+    badgeEl.classList.add('badge-unknown');
+    badgeEl.textContent = '未知状态';
+  }
+}
+
+function renderConfig(config) {
+  if (!config) {
+    tableEl.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#666">配置文件不可用</td></tr>';
+    return;
+  }
+  const rows = [
+    ['BASE_URL',            config.ANTHROPIC_BASE_URL],
+    ['MODEL',               config.ANTHROPIC_MODEL],
+    ['AUTH_TOKEN',          config.ANTHROPIC_AUTH_TOKEN],
+    ['API_KEY',             config.ANTHROPIC_API_KEY],
+    ['DEFAULT_HAIKU',       config.ANTHROPIC_DEFAULT_HAIKU_MODEL],
+    ['DEFAULT_SONNET',      config.ANTHROPIC_DEFAULT_SONNET_MODEL],
+    ['DEFAULT_OPUS',        config.ANTHROPIC_DEFAULT_OPUS_MODEL],
+    ['top-level model',     config.top_level_model],
+  ];
+
+  tableEl.innerHTML = rows.map(([label, val]) => {
+    let display;
+    if (typeof val === 'boolean') {
+      display = val
+        ? '<span class="tag-set">已设置</span>'
+        : '<span class="tag-unset">未设置</span>';
+    } else if (val === null || val === undefined) {
+      display = '<span class="tag-unset">--</span>';
+    } else {
+      display = val;
+    }
+    return '<tr><td>' + label + '</td><td>' + display + '</td></tr>';
+  }).join('');
+}
+
+function updateButtons(state, backupExists) {
+  btnRestore.disabled = !backupExists;
+  if (state === 'deepseek-like') {
+    btnSwitch.textContent = '当前: DeepSeek (重新切换)';
+  } else {
+    btnSwitch.textContent = '切换到 DeepSeek';
+  }
+}
+
+async function fetchStatus() {
+  try {
+    const resp = await fetch('/api/status');
+    const data = await resp.json();
+    setBadge(data.state);
+    renderConfig(data.config);
+    updateButtons(data.state, data.backup && data.backup.exists);
+    if (!refreshing) {
+      addLog('状态已刷新: ' + data.state, 'log-info');
+    }
+  } catch (e) {
+    addLog('获取状态失败: ' + e.message, 'log-err');
+  }
+}
+
+async function doAction(url, name, btn) {
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span>' + name + '中...';
+
+  try {
+    const resp = await fetch(url, { method: 'POST' });
+    const data = await resp.json();
+
+    if (data.success) {
+      addLog(name + '成功', 'log-ok');
+      if (data.warnings) data.warnings.forEach(w => addLog(w, 'log-warn'));
+    } else {
+      addLog(name + '失败', 'log-err');
+      if (data.errors) data.errors.forEach(e => addLog(e, 'log-err'));
+    }
+
+    // Update UI with post-operation status
+    if (data.status) {
+      setBadge(data.status.state);
+      renderConfig(data.status.config);
+      updateButtons(data.status.state, data.status.backup && data.status.backup.exists);
+    }
+  } catch (e) {
+    addLog(name + '请求失败: ' + e.message, 'log-err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+async function doSwitch() {
+  await doAction('/api/switch', '切换', btnSwitch);
+}
+
+async function doRestore() {
+  await doAction('/api/restore', '恢复', btnRestore);
+}
+
+// Init
+fetchStatus();
+// Auto-refresh every 5s (silent)
+setInterval(() => { refreshing = true; fetchStatus().finally(() => { refreshing = false; }); }, 5000);
+</script>
+</body>
+</html>
