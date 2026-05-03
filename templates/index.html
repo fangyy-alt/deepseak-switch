@@ -287,9 +287,11 @@ function renderConfig(config) {
 function updateButtons(state, backupExists) {
   btnRestore.disabled = !backupExists;
   if (state === 'deepseek-like') {
-    btnSwitch.textContent = '当前: DeepSeek (重新切换)';
+    btnSwitch.textContent = '当前已是 DeepSeek';
+    btnSwitch.disabled = true;
   } else {
     btnSwitch.textContent = '切换到 DeepSeek';
+    btnSwitch.disabled = false;
   }
 }
 

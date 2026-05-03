@@ -215,9 +215,16 @@ cmd_switch() {
     local auth_token
     auth_token=$(get_auth_token)
 
-    # Always backup current state before switching, so restore goes back to exact pre-switch state
-    cp "$SETTINGS_FILE" "$BACKUP_FILE" || die "备份创建失败: $BACKUP_FILE"
-    echo "已备份当前配置: $BACKUP_FILE"
+    # Always backup current state before switching, so restore goes back to exact pre-switch state.
+    # Exception: if already deepseek-like, skip backup to preserve the last non-deepseek backup.
+    local current_state
+    current_state=$(detect_state)
+    if [ "$current_state" = "deepseek-like" ]; then
+        warn "当前已是 DeepSeek 配置，跳过备份: $BACKUP_FILE"
+    else
+        cp "$SETTINGS_FILE" "$BACKUP_FILE" || die "备份创建失败: $BACKUP_FILE"
+        echo "已备份当前配置: $BACKUP_FILE"
+    fi
 
     # Generate new config via jq patch
     local tmp
