@@ -111,6 +111,12 @@ def run_script(command):
 
 
 @app.route("/")
+@app.route("/help")
+def help_page():
+    return render_template("help.html")
+
+
+@app.route("/tool")
 def index():
     return render_template("index.html")
 

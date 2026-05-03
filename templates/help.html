@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用说明 — DeepSeek 配置切换工具</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px 60px;
+  }
+  .container {
+    max-width: 680px;
+    width: 100%;
+  }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f0f0f0;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Nav tabs */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-bottom: 1px solid #2a2a40;
+  }
+  .nav a {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #888;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .nav a:hover { color: #ccc; }
+  .nav a.active {
+    color: #00d4aa;
+    border-bottom-color: #00d4aa;
+  }
+
+  /* Card */
+  .card {
+    background: #1a1a2e;
+    border: 1px solid #2a2a40;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+
+  /* Content typography */
+  .card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2a40;
+  }
+  .card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccc;
+    margin: 18px 0 10px;
+  }
+  .card h3:first-child { margin-top: 0; }
+  .card p {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Code block */
+  .code-block {
+    background: #12121f;
+    border: 1px solid #2a2a40;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 10px 0;
+    position: relative;
+  }
+  .code-block code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    color: #e0e0e0;
+    display: block;
+    line-height: 1.8;
+    white-space: pre;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #2a2a40;
+    border: 1px solid #3a3a55;
+    color: #888;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: #00d4aa; border-color: #00d4aa; }
+  .copy-btn.copied { color: #00d4aa; border-color: #00d4aa; }
+
+  /* Inline code */
+  code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12px;
+    background: #12121f;
+    border: 1px solid #2a2a40;
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: #ccc;
+  }
+
+  /* List */
+  .card ul {
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 12px;
+  }
+  .card ul li {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.7;
+    padding-left: 16px;
+    position: relative;
+  }
+  .card ul li::before {
+    content: "·";
+    position: absolute;
+    left: 4px;
+    color: #00d4aa;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+  }
+  table th {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    text-align: left;
+    padding: 8px 0;
+    border-bottom: 1px solid #2a2a40;
+  }
+  table td {
+    font-size: 13px;
+    color: #aaa;
+    padding: 9px 0;
+    border-bottom: 1px solid #1e1e32;
+    vertical-align: top;
+  }
+  table tr:last-child td { border-bottom: none; }
+  table td:first-child {
+    color: #e0e0e0;
+    width: 38%;
+    padding-right: 16px;
+  }
+
+  /* Callout */
+  .callout {
+    background: #1e1a10;
+    border: 1px solid #f0c04044;
+    border-left: 3px solid #f0c040;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #c8a84b;
+    line-height: 1.6;
+  }
+  .callout strong { color: #f0c040; }
+
+  /* Divider */
+  hr {
+    border: none;
+    border-top: 1px solid #2a2a40;
+    margin: 16px 0;
+  }
+
+  /* Enter tool button */
+  .btn-enter {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #00d4aa;
+    color: #0f0f1a;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .btn-enter:hover { background: #00eabb; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <h1>DeepSeek 配置切换工具</h1>
+    <p>在 Claude Code 的 Anthropic 接口和 DeepSeek 接口之间一键切换</p>
+  </div>
+
+  <nav class="nav">
+    <a href="/help" class="active">使用说明</a>
+    <a href="/tool">切换工具</a>
+  </nav>
+
+  <!-- 快速开始 -->
+  <div class="card">
+    <h2>快速开始</h2>
+
+    <h3>macOS / Linux</h3>
+    <p>打开终端，粘贴以下命令：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <code>git clone https://github.com/fangyy-alt/deepseak-switch.git
+cd deepseak-switch
+bash install.sh</code>
+    </div>
+
+    <h3>Windows</h3>
+    <p>Windows 需要先安装 <a href="https://git-scm.com/download/win" style="color:#4a9eff">Git for Windows</a>（安装时一路默认即可）。</p>
+    <p>安装完成后，打开「Git Bash」（在开始菜单中搜索），粘贴以下命令：</p>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <code>git clone https://github.com/fangyy-alt/deepseak-switch.git
+cd deepseak-switch
+bash install.sh</code>
+    </div>
+    <div class="callout">
+      <strong>注意：</strong> 请使用 Git Bash 运行，不要用 PowerShell 或命令提示符（cmd），否则脚本无法执行。
+    </div>
+
+    <hr>
+    <p>脚本会自动完成：</p>
+    <ul>
+      <li>检查并安装所需依赖（Flask、jq）</li>
+      <li>引导你输入 DeepSeek API Key</li>
+      <li>启动本地 Web 服务</li>
+      <li>自动打开浏览器</li>
+    </ul>
+    <p>浏览器打开后即可使用，无需其他操作。</p>
+  </div>
+
+  <!-- 使用前提 -->
+  <div class="card">
+    <h2>使用前提</h2>
+    <ul>
+      <li>已安装 <a href="https://claude.ai/code" style="color:#4a9eff">Claude Code</a>（需要存在 <code>~/.claude/settings.json</code>）</li>
+      <li>有 DeepSeek API Key（可在 <a href="https://platform.deepseek.com" style="color:#4a9eff">platform.deepseek.com</a> 注册获取）</li>
+    </ul>
+  </div>
+
+  <!-- 功能说明 -->
+  <div class="card">
+    <h2>功能说明</h2>
+    <table>
+      <tr>
+        <th>操作</th>
+        <th>效果</th>
+      </tr>
+      <tr>
+        <td>切换到 DeepSeek</td>
+        <td>将 Claude Code 的 API 请求转发到 DeepSeek</td>
+      </tr>
+      <tr>
+        <td>恢复原始配置</td>
+        <td>还原切换前的配置（首次切换时自动备份）</td>
+      </tr>
+    </table>
+    <p style="margin-top:14px">切换只修改 <code>~/.claude/settings.json</code> 中的三个字段，不影响其他配置。</p>
+  </div>
+
+  <!-- 命令行 -->
+  <div class="card">
+    <h2>也可以用命令行（macOS / Linux / Git Bash）</h2>
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">复制</button>
+      <code>./switch-deepseek.sh status    # 查看当前状态
+./switch-deepseek.sh switch    # 切换到 DeepSeek
+./switch-deepseek.sh restore   # 恢复原始配置</code>
+    </div>
+    <p>手动停止服务：在终端按 <code>Ctrl+C</code> 即可。</p>
+  </div>
+
+  <!-- 进入工具 -->
+  <a href="/tool" class="btn-enter">进入切换工具 →</a>
+
+  <div class="footer">localhost:8080</div>
+</div>
+
+<script>
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '复制';
+      btn.classList.remove('copied');
+    }, 1500);
+  });
+}
+</script>
+</body>
+</html>

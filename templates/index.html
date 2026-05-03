@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeepSeek 配置切换工具</title>
+<title>切换工具 — DeepSeek 配置切换工具</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -26,6 +26,28 @@
     margin-bottom: 28px;
     color: #f0f0f0;
     letter-spacing: 0.5px;
+  }
+
+  /* Nav tabs */
+  .nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border-bottom: 1px solid #2a2a40;
+  }
+  .nav a {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #888;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .nav a:hover { color: #ccc; }
+  .nav a.active {
+    color: #00d4aa;
+    border-bottom-color: #00d4aa;
   }
 
   /* Card */
@@ -170,6 +192,10 @@
 <body>
 <div class="container">
   <h1>DeepSeek 配置切换工具</h1>
+  <nav class="nav">
+    <a href="/help">使用说明</a>
+    <a href="/tool" class="active">切换工具</a>
+  </nav>
 
   <!-- Status Badge -->
   <div class="card status-area">
