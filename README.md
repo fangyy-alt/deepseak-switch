@@ -4,13 +4,31 @@
 
 ## 快速开始
 
-在终端粘贴以下命令，一键启动：
+### macOS / Linux
+
+打开终端，粘贴以下命令：
 
 ```bash
 git clone https://github.com/fangyy-alt/deepseak-switch.git
 cd deepseak-switch
 bash install.sh
 ```
+
+### Windows
+
+Windows 需要先安装 [Git for Windows](https://git-scm.com/download/win)（安装时一路默认即可）。
+
+安装完成后，打开「Git Bash」（在开始菜单中搜索），粘贴以下命令：
+
+```bash
+git clone https://github.com/fangyy-alt/deepseak-switch.git
+cd deepseak-switch
+bash install.sh
+```
+
+> **注意：** 请使用 Git Bash 运行，不要用 PowerShell 或命令提示符（cmd），否则脚本无法执行。
+
+---
 
 脚本会自动完成：
 - 检查并安装所需依赖（Flask、jq）
@@ -22,7 +40,6 @@ bash install.sh
 
 ## 使用前提
 
-- macOS 或 Linux 系统
 - 已安装 [Claude Code](https://claude.ai/code)（需要存在 `~/.claude/settings.json`）
 - 有 DeepSeek API Key（可在 [platform.deepseek.com](https://platform.deepseek.com) 注册获取）
 
@@ -39,7 +56,7 @@ bash install.sh
 
 切换只修改 `~/.claude/settings.json` 中的三个字段，不影响其他配置。
 
-## 也可以用命令行
+## 也可以用命令行（macOS / Linux / Git Bash）
 
 ```bash
 ./switch-deepseek.sh status    # 查看当前状态
