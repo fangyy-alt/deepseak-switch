@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/
+
+# Temp and backup files
+*.tmp
+*.bak
+*~
